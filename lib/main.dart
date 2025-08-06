@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moviedb_org/Pages/home_page.dart';
-
+import 'package:moviedb_org/main_controller.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,10 +27,38 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
   @override
   Widget build(BuildContext context) {
-    return HomePage();
+    return ChangeNotifierProvider(
+      create: (context) => MyHomePageController(),
+      child: Consumer<MyHomePageController>(
+        builder: (context, controller, child) {
+          return Scaffold(
+            bottomNavigationBar: BottomNavigationBar(
+              selectedItemColor: Color(0xFFE05A2B),
+              currentIndex: controller.selectedIndex,
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.explore),
+                  label: 'Explore',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.library_add_check),
+                  label: 'Library',
+                ),
+              ],
+              onTap: (index) {
+                controller.changeIndex(index);
+              },
+            ),
+            body: controller.pageList[controller.selectedIndex],
+          );
+        },
+      ),
+    );
   }
 }
+
+
+// 2.⁠ ⁠favorite/watchlist buttonlar
+// 3.⁠ ⁠imagesdan resimleri cekip slider
