@@ -1,4 +1,27 @@
-class MovTopDetailsParse {
+final class MovieData {
+  final int? page;
+  final List<Movie>? results;
+  final int? totalPages;
+  final int? totalResults;
+
+  MovieData({this.page, this.results, this.totalPages, this.totalResults});
+
+  factory MovieData.fromJson(Map<String, dynamic> json) {
+    var jsonArray = json['results'] as List;
+    List<Movie> resultList =
+        jsonArray
+            .map((jsonArrayObject) => Movie.fromJson(jsonArrayObject))
+            .toList();
+    return MovieData(
+      page: json["page"],
+      results: resultList,
+      totalPages: json["total_pages"],
+      totalResults: json["total_results"],
+    );
+  }
+}
+
+class Movie {
   final bool? adult;
   final String? backdropPath;
   final dynamic belongsToCollection;
@@ -15,7 +38,7 @@ class MovTopDetailsParse {
   final String? posterPath;
   final List<ProductionCompany>? productionCompanies;
   final List<ProductionCountry>? productionCountries;
-  final DateTime? releaseDate;
+  final String? releaseDate;
   final int? revenue;
   final int? runtime;
   final List<SpokenLanguage>? spokenLanguages;
@@ -25,8 +48,10 @@ class MovTopDetailsParse {
   final bool? video;
   final double? voteAverage;
   final int? voteCount;
+  bool isFavorite;
+  bool isInWatchlist;
 
-  MovTopDetailsParse({
+  Movie({
     this.adult,
     this.backdropPath,
     this.belongsToCollection,
@@ -53,11 +78,11 @@ class MovTopDetailsParse {
     this.video,
     this.voteAverage,
     this.voteCount,
+    this.isFavorite = false,
+    this.isInWatchlist = false,
   });
 
-  factory MovTopDetailsParse.fromJson(
-    Map<String, dynamic> json,
-  ) => MovTopDetailsParse(
+  factory Movie.fromJson(Map<String, dynamic> json) => Movie(
     adult: json["adult"],
     backdropPath: json["backdrop_path"],
     belongsToCollection: json["belongs_to_collection"],
@@ -94,10 +119,7 @@ class MovTopDetailsParse {
                 (x) => ProductionCountry.fromJson(x),
               ),
             ),
-    releaseDate:
-        json["release_date"] == null
-            ? null
-            : DateTime.parse(json["release_date"]),
+    releaseDate: json["release_date"],
     revenue: json["revenue"],
     runtime: json["runtime"],
     spokenLanguages:
@@ -112,6 +134,7 @@ class MovTopDetailsParse {
     video: json["video"],
     voteAverage: json["vote_average"]?.toDouble(),
     voteCount: json["vote_count"],
+    // isFavorite and isInWatchlist are handled later in data processing
   );
 }
 
