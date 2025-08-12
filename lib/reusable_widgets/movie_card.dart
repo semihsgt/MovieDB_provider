@@ -9,11 +9,15 @@ class MovieCard extends StatelessWidget {
     required this.mp,
     required this.pressedFavoriteButton,
     required this.pressedWatchlistButton,
+    required this.pressedDeleteButton,
+    required this.showOnlyDeleteButton,
   });
 
   final Movie mp;
   final Function pressedFavoriteButton;
   final Function pressedWatchlistButton;
+  final Function pressedDeleteButton;
+  final bool showOnlyDeleteButton;
 
   @override
   Widget build(BuildContext context) {
@@ -38,29 +42,43 @@ class MovieCard extends StatelessWidget {
           ),
         ),
 
-        IconButton(
-          color: Colors.white,
-          onPressed: () {
-            pressedFavoriteButton();
-          },
-          icon: Icon(
-            mp.isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: mp.isFavorite ? Color(0xFFE05A2B) : Colors.white,
-          ),
-        ),
+        showOnlyDeleteButton
+            ? const SizedBox.shrink()
+            : IconButton(
+              color: Colors.white,
+              onPressed: () {
+                pressedFavoriteButton();
+              },
+              icon: Icon(
+                mp.isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: mp.isFavorite ? Color(0xFFE05A2B) : Colors.white,
+              ),
+            ),
 
         Positioned(
           right: 0,
-          child: IconButton(
-            color: Colors.white,
-            onPressed: () {
-              pressedWatchlistButton();
-            },
-            icon: Icon(
-              mp.isInWatchlist ? Icons.watch_later : Icons.watch_later_outlined,
-              color: mp.isInWatchlist ? Color(0xFFE05A2B) : Colors.white,
-            ),
-          ),
+          child:
+              showOnlyDeleteButton
+                  ? IconButton(
+                    color: Colors.white,
+                    onPressed: () {
+                      pressedDeleteButton();
+                    },
+                    icon: Icon(Icons.delete, color: Color(0xFFE05A2B)),
+                  )
+                  : IconButton(
+                    color: Colors.white,
+                    onPressed: () {
+                      pressedWatchlistButton();
+                    },
+                    icon: Icon(
+                      mp.isInWatchlist
+                          ? Icons.watch_later
+                          : Icons.watch_later_outlined,
+                      color:
+                          mp.isInWatchlist ? Color(0xFFE05A2B) : Colors.white,
+                    ),
+                  ),
         ),
       ],
     );

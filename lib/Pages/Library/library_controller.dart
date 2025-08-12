@@ -21,11 +21,11 @@ class LibraryPageController extends ChangeNotifier {
     tabController = TabController(length: 2, vsync: vsync);
   }
 
-  // @override
-  // void dispose() {
-  //   tabController.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
 
   Future<void> getFavoritesList() async {
     isFavoritesLoading = true;
@@ -63,41 +63,19 @@ class LibraryPageController extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool isContainsFavoritesList(int id) {
-    return favoriteList?.any((movie) => movie.id == id) ?? false;
-  }
-
-  bool isContainsWatchlist(int id) {
-    return watchlist?.any((movie) => movie.id == id) ?? false;
-  }
-
   Future<void> getMovies() async {
-    await getWatchlist();
     await getFavoritesList();
-    isLoading = true;
-    notifyListeners();
+    await getWatchlist();
     var url = Uri.parse(
       'https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc',
     );
     var response = await http.get(url, headers: ApiConstants.headers);
     final responseMap = json.decode(response.body);
     movieList = MovieData.fromJson(responseMap).results;
-
-    for (var i = 0; i < (movieList?.length ?? 0); i++) {
-      final movie = movieList?[i];
-      final isFav = isContainsFavoritesList(movie?.id ?? 0);
-      final isInWatchlist = isContainsWatchlist(movie?.id ?? 0);
-      movie?.isFavorite = isFav;
-      movie?.isInWatchlist = isInWatchlist;
-    }
-
-    isLoading = false;
-    notifyListeners();
   }
 
-  Future<void> addOrRemoveFavorites({
+  Future<void> removeFavorites({
     required int? mediaId,
-    required bool isFavorite,
   }) async {
     final url = Uri.parse(
       'https://api.themoviedb.org/3/account/22198136/favorite',
@@ -105,7 +83,7 @@ class LibraryPageController extends ChangeNotifier {
     final data = jsonEncode({
       "media_type": "movie",
       "media_id": mediaId,
-      "favorite": isFavorite,
+      "favorite": false,
     });
     final response = await http.post(
       url,
@@ -119,7 +97,7 @@ class LibraryPageController extends ChangeNotifier {
 
       final movie = movieList?.firstWhere((m) => m.id == mediaId);
       if (movie != null) {
-        movie.isFavorite = isFavorite;
+        movie.isFavorite = false;
         notifyListeners();
       }
     } else {
@@ -127,9 +105,8 @@ class LibraryPageController extends ChangeNotifier {
     }
   }
 
-  Future<void> addOrRemoveWatchlist({
+  Future<void> removeWatchlist({
     required int? mediaId,
-    required bool isInWatchlist,
   }) async {
     final url = Uri.parse(
       'https://api.themoviedb.org/3/account/22198136/watchlist',
@@ -137,7 +114,7 @@ class LibraryPageController extends ChangeNotifier {
     final data = jsonEncode({
       "media_type": "movie",
       "media_id": mediaId,
-      "watchlist": isInWatchlist,
+      "watchlist": false,
     });
     final response = await http.post(
       url,
@@ -151,7 +128,7 @@ class LibraryPageController extends ChangeNotifier {
 
       final movie = movieList?.firstWhere((m) => m.id == mediaId);
       if (movie != null) {
-        movie.isInWatchlist = isInWatchlist;
+        movie.isInWatchlist = false;
         notifyListeners();
       }
     } else {

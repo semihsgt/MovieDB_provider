@@ -20,7 +20,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
         final movList = controller.favoriteList;
 
         if (controller.isFavoritesLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Scaffold(
+            body: const Center(child: CircularProgressIndicator()),
+          );
         }
 
         if (movList == null) {
@@ -62,19 +64,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 },
                 child: MovieCard(
                   mp: mp,
-                  pressedFavoriteButton: () {
-                    controller.addOrRemoveFavorites(
-                      mediaId: mp.id,
-                      isFavorite: mp.isFavorite ? false : true,
-                    );
-                    controller.getFavoritesList();
-                  },
-                  pressedWatchlistButton: () {
-                    controller.addOrRemoveWatchlist(
-                      mediaId: mp.id,
-                      isInWatchlist: mp.isInWatchlist ? false : true,
-                    );
-                    controller.getWatchlist();
+                  showOnlyDeleteButton: true,
+                  pressedFavoriteButton: () {},
+                  pressedWatchlistButton: () {},
+                  pressedDeleteButton: () {
+                    controller.removeFavorites(mediaId: mp.id);
                   },
                 ),
               ),

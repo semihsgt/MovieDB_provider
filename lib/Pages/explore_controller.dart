@@ -15,8 +15,6 @@ class ExplorePageController extends ChangeNotifier {
   }
 
   Future<void> getWatchlist() async {
-    isLoading = true;
-    notifyListeners();
     var url = Uri.parse(
       'https://api.themoviedb.org/3/account/22198136/watchlist/movies?language=en-US&page=1&sort_by=created_at.asc',
     );
@@ -27,14 +25,10 @@ class ExplorePageController extends ChangeNotifier {
     watchlist?.forEach((movie) {
       movie.isInWatchlist = true;
     });
-
-    isLoading = false;
     notifyListeners();
   }
 
   Future<void> getFavoritesList() async {
-    isLoading = true;
-    notifyListeners();
     var url = Uri.parse(
       'https://api.themoviedb.org/3/account/22198136/favorite/movies?language=en-US&page=1&sort_by=created_at.asc',
     );
@@ -45,8 +39,6 @@ class ExplorePageController extends ChangeNotifier {
     favoriteList?.forEach((movie) {
       movie.isFavorite = true;
     });
-
-    isLoading = false;
     notifyListeners();
   }
 

@@ -17,41 +17,46 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create:
-          (context) => DetailsPageController(
-            movieId: widget.movieId ?? 0,
-            context: context,
-          ),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0xFFE05A2B),
-          title: Text(
-            "Movie Details",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        body: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Consumer<DetailsPageController>(
-                builder: (context, controller, child) {
-                  final movie = controller.movie;
-
-                  if (controller.isLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (movie == null) {
-                    return const Center(
-                      child: Text(
-                        "Something went wrong.\nPlease try again later.",
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  }
-
-                  return Card(
+      create: (context) => DetailsPageController(movieId: widget.movieId ?? 0),
+      child: Consumer<DetailsPageController>(
+        builder: (context, controller, child) {
+          final movie = controller.movie;
+      
+          if (controller.isLoading) {
+            return Scaffold(
+              appBar: AppBar(
+                backgroundColor: Color(0xFFE05A2B),
+                title: Text(
+                  "Movie Details",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          }
+      
+          if (movie == null) {
+            return const Center(
+              child: Text(
+                "Something went wrong.\nPlease try again later.",
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+      
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Color(0xFFE05A2B),
+              title: Text(
+                "Movie Details",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            body: Center(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Card(
                     shadowColor: Colors.grey.shade800.withValues(
                       colorSpace: ColorSpace.sRGB,
                     ),
@@ -68,9 +73,7 @@ class _DetailsPageState extends State<DetailsPage> {
                             topLeft: Radius.circular(5),
                             topRight: Radius.circular(5),
                           ),
-                          child: CustomImage(
-                            posterPath: movie.posterPath ?? '',
-                          ),
+                          child: CustomImage(posterPath: movie.posterPath ?? ''),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -78,24 +81,13 @@ class _DetailsPageState extends State<DetailsPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '\n${movie.title ?? ""}\n',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  IconButton(
-                                    color: Colors.white,
-                                    onPressed: () {},
-                                    icon: Icon(Icons.favorite_border),
-                                  ),
-                                ],
+                              Text(
+                                '\n${movie.title ?? ""}\n',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                                textAlign: TextAlign.start,
                               ),
                               Text("Describtion : \n\n${movie.overview}"),
                               Text("\nRelease Date : ${movie.releaseDate}"),
@@ -110,12 +102,12 @@ class _DetailsPageState extends State<DetailsPage> {
                         ),
                       ],
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

@@ -19,7 +19,9 @@ class _WatchlistPageState extends State<WatchlistPage> {
         final movList = controller.watchlist;
 
         if (controller.isWatchlistLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Scaffold(
+            body: const Center(child: CircularProgressIndicator()),
+          );
         }
 
         if (movList == null) {
@@ -61,12 +63,11 @@ class _WatchlistPageState extends State<WatchlistPage> {
                 },
                 child: MovieCard(
                   mp: mp,
+                  showOnlyDeleteButton: true,
                   pressedFavoriteButton: () {},
-                  pressedWatchlistButton: () {
-                    controller.addOrRemoveWatchlist(
-                      mediaId: mp.id,
-                      isInWatchlist: mp.isInWatchlist ? false : true,
-                    );
+                  pressedWatchlistButton: () {},
+                  pressedDeleteButton: () {
+                    controller.removeWatchlist(mediaId: mp.id);
                   },
                 ),
               ),

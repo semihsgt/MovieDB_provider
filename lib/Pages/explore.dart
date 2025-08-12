@@ -18,7 +18,25 @@ class _ExplorePageState extends State<ExplorePage> {
         final movList = controller.movieList;
 
         if (controller.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Color(0xFFE05A2B),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    '/Users/semihsogut/StudioProjects/Flutter/moviedb_provider/assets/images/app_icon_deleted_background.png',
+                    height: 45,
+                  ),
+                  Text(
+                    "MovieDB",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            body: const Center(child: CircularProgressIndicator()),
+          );
         }
 
         if (movList == null) {
@@ -65,17 +83,21 @@ class _ExplorePageState extends State<ExplorePage> {
                   },
                   child: MovieCard(
                     mp: mp,
+                    showOnlyDeleteButton: false,
+                    pressedDeleteButton: () {},
                     pressedFavoriteButton: () {
                       controller.addOrRemoveFavorites(
                         mediaId: mp.id,
                         isFavorite: mp.isFavorite ? false : true,
                       );
+                      controller.getFavoritesList();
                     },
                     pressedWatchlistButton: () {
                       controller.addOrRemoveWatchlist(
                         mediaId: mp.id,
                         isInWatchlist: mp.isInWatchlist ? false : true,
                       );
+                      controller.getWatchlist();
                     },
                   ),
                 ),

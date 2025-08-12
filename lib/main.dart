@@ -11,11 +11,11 @@ void main() {
         ChangeNotifierProvider<ExplorePageController>(
           create: (context) => ExplorePageController(),
         ),
-        ChangeNotifierProvider<MyHomePageController>(
-          create: (context) => MyHomePageController(),
-        ),
         ChangeNotifierProvider<LibraryPageController>(
           create: (context) => LibraryPageController(),
+        ),
+        ChangeNotifierProvider<MyHomePageController>(
+          create: (context) => MyHomePageController(),
         ),
       ],
       builder: (context, child) {
@@ -66,6 +66,13 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
             onTap: (index) {
               controller.changeIndex(index);
+              if (index == 0) {
+                final getFavorites = Provider.of<ExplorePageController>(
+                  context,
+                  listen: false,
+                );
+                getFavorites.getMovies();
+              }
               if (index == 1) {
                 final getFavorites = Provider.of<LibraryPageController>(
                   context,
