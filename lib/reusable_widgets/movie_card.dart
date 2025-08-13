@@ -45,7 +45,6 @@ class MovieCard extends StatelessWidget {
         showOnlyDeleteButton
             ? const SizedBox.shrink()
             : IconButton(
-              color: Colors.white,
               onPressed: () {
                 pressedFavoriteButton();
               },
@@ -60,14 +59,12 @@ class MovieCard extends StatelessWidget {
           child:
               showOnlyDeleteButton
                   ? IconButton(
-                    color: Colors.white,
                     onPressed: () {
                       pressedDeleteButton();
                     },
                     icon: Icon(Icons.delete, color: Color(0xFFE05A2B)),
                   )
                   : IconButton(
-                    color: Colors.white,
                     onPressed: () {
                       pressedWatchlistButton();
                     },
