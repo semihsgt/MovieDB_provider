@@ -21,7 +21,7 @@ class _DetailsPageState extends State<DetailsPage> {
       child: Consumer<DetailsPageController>(
         builder: (context, controller, child) {
           final movie = controller.movie;
-      
+
           if (controller.isLoading) {
             return Scaffold(
               appBar: AppBar(
@@ -34,7 +34,7 @@ class _DetailsPageState extends State<DetailsPage> {
               body: const Center(child: CircularProgressIndicator()),
             );
           }
-      
+
           if (movie == null) {
             return const Center(
               child: Text(
@@ -43,7 +43,7 @@ class _DetailsPageState extends State<DetailsPage> {
               ),
             );
           }
-      
+
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Color(0xFFE05A2B),
@@ -73,7 +73,9 @@ class _DetailsPageState extends State<DetailsPage> {
                             topLeft: Radius.circular(5),
                             topRight: Radius.circular(5),
                           ),
-                          child: CustomImage(posterPath: movie.posterPath ?? ''),
+                          child: CustomImage(
+                            posterPath: movie.posterPath ?? '',
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(16.0),

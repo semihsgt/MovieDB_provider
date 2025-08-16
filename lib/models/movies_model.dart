@@ -1,4 +1,9 @@
-final class MovieData {
+abstract class BaseModel<T> {
+  int? statusCode;
+  T fromJson(Map<String, dynamic> json);
+}
+
+final class MovieData extends BaseModel {
   final int? page;
   final List<Movie>? results;
   final int? totalPages;
@@ -19,9 +24,19 @@ final class MovieData {
       totalResults: json["total_results"],
     );
   }
+
+  @override
+  MovieData fromJson(Map<String, dynamic> json) {
+    return MovieData.fromJson(json);
+  }
 }
 
-class Movie {
+class Movie extends BaseModel {
+  @override
+  Movie fromJson(Map<String, dynamic> json) {
+    return Movie.fromJson(json);
+  }
+
   final bool? adult;
   final String? backdropPath;
   final dynamic belongsToCollection;

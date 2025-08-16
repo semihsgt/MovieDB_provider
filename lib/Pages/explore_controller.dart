@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:moviedb_org/core/network/network_manager.dart';
 import 'package:moviedb_org/models/movies_model.dart';
-import 'package:moviedb_org/gitignore/api_constants.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class ExplorePageController extends ChangeNotifier {
   List<Movie>? movieList;
@@ -15,12 +13,13 @@ class ExplorePageController extends ChangeNotifier {
   }
 
   Future<void> getWatchlist() async {
-    var url = Uri.parse(
-      'https://api.themoviedb.org/3/account/22198136/watchlist/movies?language=en-US&page=1&sort_by=created_at.asc',
+    final response = await NetworkManager.instance.getRequest<MovieData>(
+      '/3/account/22198136/watchlist/movies',
+      queryParam: {'language': 'en=US', 'page': 1, 'sort_by': 'created_at.asc'},
+      model: MovieData(),
     );
-    var response = await http.get(url, headers: ApiConstants.headers);
-    final responseMap = json.decode(response.body);
-    watchlist = MovieData.fromJson(responseMap).results;
+
+    watchlist = response?.results;
 
     watchlist?.forEach((movie) {
       movie.isInWatchlist = true;
@@ -29,12 +28,13 @@ class ExplorePageController extends ChangeNotifier {
   }
 
   Future<void> getFavoritesList() async {
-    var url = Uri.parse(
-      'https://api.themoviedb.org/3/account/22198136/favorite/movies?language=en-US&page=1&sort_by=created_at.asc',
+    final response = await NetworkManager.instance.getRequest(
+      '/3/account/22198136/favorite/movies',
+      queryParam: {'language': 'en=US', 'page': 1, 'sort_by': 'created_at.asc'},
+      model: MovieData(),
     );
-    var response = await http.get(url, headers: ApiConstants.headers);
-    final responseMap = json.decode(response.body);
-    favoriteList = MovieData.fromJson(responseMap).results;
+
+    favoriteList = response?.results;
 
     favoriteList?.forEach((movie) {
       movie.isFavorite = true;
@@ -50,18 +50,26 @@ class ExplorePageController extends ChangeNotifier {
     return favoriteList?.any((movie) => movie.id == id) ?? false;
   }
 
-  Future<void> getMovies() async {
+  Future<void> getMovies({bool hideLoading = false}) async {
     await getWatchlist();
     await getFavoritesList();
-    isLoading = true;
-    notifyListeners();
-    var url = Uri.parse(
-      'https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc',
-    );
-    var response = await http.get(url, headers: ApiConstants.headers);
-    final responseMap = json.decode(response.body);
-    movieList = MovieData.fromJson(responseMap).results;
+    if (hideLoading == false) {
+      isLoading = true;
+      notifyListeners();
+    }
 
+    final response = await NetworkManager.instance.getRequest(
+      '/3/discover/movie',
+      queryParam: {
+        'include_adult': 'false',
+        'include_video': 'false',
+        'language': 'en-US',
+        'page': 1,
+        'sort_by': 'popularity.desc',
+      },
+      model: MovieData(),
+    );
+    movieList = response?.results;
 
     for (var i = 0; i < (movieList?.length ?? 0); i++) {
       final movie = movieList?[i];
@@ -79,63 +87,58 @@ class ExplorePageController extends ChangeNotifier {
     required int? mediaId,
     required bool isFavorite,
   }) async {
-    final url = Uri.parse(
-      'https://api.themoviedb.org/3/account/22198136/favorite',
-    );
-    final data = jsonEncode({
+    final data = {
       "media_type": "movie",
       "media_id": mediaId,
       "favorite": isFavorite,
-    });
-    final response = await http.post(
-      url,
-      headers: ApiConstants.headers,
+    };
+
+    await NetworkManager.instance.postRequest(
+      '/3/account/22198136/favorite',
       body: data,
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseData = jsonDecode(response.body);
-      print("TMDB response: ${responseData['status_message']}");
-
-      final movie = movieList?.firstWhere((m) => m.id == mediaId);
-      if (movie != null) {
-        movie.isFavorite = isFavorite;
-        notifyListeners();
-      }
-    } else {
-      print("Error: ${response.statusCode} - ${response.body}");
+    final movie = movieList?.firstWhere((m) => m.id == mediaId);
+    if (movie != null) {
+      movie.isFavorite = isFavorite;
+      notifyListeners();
     }
+
+    // if (response.statusCode == 200 || response.statusCode == 201) {
+    //   final responseData = jsonDecode(response.body);
+    //   print("TMDB response: ${responseData['status_message']}");
+    // } else {
+    //   print("Error: ${response.statusCode} - ${response.body}");
+    // }
   }
 
   Future<void> addOrRemoveWatchlist({
     required int? mediaId,
     required bool isInWatchlist,
   }) async {
-    final url = Uri.parse(
-      'https://api.themoviedb.org/3/account/22198136/watchlist',
-    );
-    final data = jsonEncode({
+    final data = {
       "media_type": "movie",
       "media_id": mediaId,
       "watchlist": isInWatchlist,
-    });
-    final response = await http.post(
-      url,
-      headers: ApiConstants.headers,
+    };
+
+    await NetworkManager.instance.postRequest(
+      '/3/account/22198136/watchlist',
       body: data,
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseData = jsonDecode(response.body);
-      print("TMDB response: ${responseData['status_message']}");
-
-      final movie = movieList?.firstWhere((m) => m.id == mediaId);
-      if (movie != null) {
-        movie.isInWatchlist = isInWatchlist;
-        notifyListeners();
-      }
-    } else {
-      print("Error: ${response.statusCode} - ${response.body}");
+    final movie = movieList?.firstWhere((m) => m.id == mediaId);
+    if (movie != null) {
+      movie.isInWatchlist = isInWatchlist;
+      notifyListeners();
     }
+
+    // if (response.statusCode == 200 || response.statusCode == 201) {
+    //   final responseData = jsonDecode(response.body);
+    //   print("TMDB response: ${responseData['status_message']}");
+
+    // } else {
+    //   print("Error: ${response.statusCode} - ${response.body}");
+    // }
   }
 }

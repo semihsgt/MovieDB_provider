@@ -32,10 +32,10 @@ class _LibraryPageState extends State<LibraryPage>
               title: TabBar(
                 onTap: (value) {
                   if (value == 0) {
-                    controller.getFavoritesList();
+                    controller.getFavoritesList(hideLoading: true);
                   }
                   if (value == 1) {
-                    controller.getWatchlist();
+                    controller.getWatchlist(hideLoading: true);
                   }
                 },
                 controller: controller.tabController,

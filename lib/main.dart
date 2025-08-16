@@ -67,18 +67,14 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: (index) {
               controller.changeIndex(index);
               if (index == 0) {
-                final getFavorites = Provider.of<ExplorePageController>(
-                  context,
-                  listen: false,
-                );
-                getFavorites.getMovies();
+                final explorePageController =
+                    Provider.of<ExplorePageController>(context, listen: false);
+                explorePageController.getMovies(hideLoading: true);
               }
               if (index == 1) {
-                final getFavorites = Provider.of<LibraryPageController>(
-                  context,
-                  listen: false,
-                );
-                getFavorites.getFavoritesList();
+                final libraryPageController =
+                    Provider.of<LibraryPageController>(context, listen: false);
+                libraryPageController.getFavoritesList(hideLoading: true);
               }
             },
           ),

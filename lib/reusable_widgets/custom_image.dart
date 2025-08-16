@@ -10,7 +10,6 @@ class CustomImage extends StatelessWidget {
       'https://image.tmdb.org/t/p/w1280$posterPath',
       fit: BoxFit.cover,
       loadingBuilder: (context, child, loadingProgress) {
-
         if (loadingProgress == null) {
           return child;
         }

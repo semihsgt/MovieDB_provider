@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:moviedb_org/core/network/network_manager.dart';
 import 'package:moviedb_org/models/movies_model.dart';
-import 'package:moviedb_org/gitignore/api_constants.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class LibraryPageController extends ChangeNotifier {
   late TabController tabController;
@@ -27,15 +25,19 @@ class LibraryPageController extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<void> getFavoritesList() async {
-    isFavoritesLoading = true;
-    notifyListeners();
-    var url = Uri.parse(
-      'https://api.themoviedb.org/3/account/22198136/favorite/movies?language=en-US&page=1&sort_by=created_at.asc',
+  Future<void> getFavoritesList({bool hideLoading = false}) async {
+    if (hideLoading == false) {
+      isFavoritesLoading = true;
+      notifyListeners();
+    }
+
+    var response = await NetworkManager.instance.getRequest(
+      '/3/account/22198136/favorite/movies',
+      queryParam: {'language': 'en-US', 'page': 1, 'sort_by': 'created_at.asc'},
+      model: MovieData(),
     );
-    var response = await http.get(url, headers: ApiConstants.headers);
-    final responseMap = json.decode(response.body);
-    favoriteList = MovieData.fromJson(responseMap).results;
+
+    favoriteList = response?.results;
 
     favoriteList?.forEach((movie) {
       movie.isFavorite = true;
@@ -45,15 +47,18 @@ class LibraryPageController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getWatchlist() async {
-    isWatchlistLoading = true;
-    notifyListeners();
-    var url = Uri.parse(
-      'https://api.themoviedb.org/3/account/22198136/watchlist/movies?language=en-US&page=1&sort_by=created_at.asc',
+  Future<void> getWatchlist({bool hideLoading = false}) async {
+    if (hideLoading == false) {
+      isFavoritesLoading = true;
+      notifyListeners();
+    }
+
+    var response = await NetworkManager.instance.getRequest(
+      '/3/account/22198136/watchlist/movies',
+      queryParam: {'language': 'en-US', 'page': 1, 'sort_by': 'created_at.asc'},
+      model: MovieData(),
     );
-    var response = await http.get(url, headers: ApiConstants.headers);
-    final responseMap = json.decode(response.body);
-    watchlist = MovieData.fromJson(responseMap).results;
+    watchlist = response?.results;
 
     watchlist?.forEach((movie) {
       movie.isInWatchlist = true;
@@ -66,73 +71,70 @@ class LibraryPageController extends ChangeNotifier {
   Future<void> getMovies() async {
     await getFavoritesList();
     await getWatchlist();
-    var url = Uri.parse(
-      'https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc',
+
+    var response = await NetworkManager.instance.getRequest(
+      '/3/discover/movie?',
+      queryParam: {
+        'include_adult': 'false',
+        'include_video': 'false',
+        'language': 'en-US',
+        'page': 1,
+        'sort_by': 'popularity.desc',
+      },
+      model: MovieData(),
     );
-    var response = await http.get(url, headers: ApiConstants.headers);
-    final responseMap = json.decode(response.body);
-    movieList = MovieData.fromJson(responseMap).results;
+    movieList = response?.results;
   }
 
-  Future<void> removeFavorites({
-    required int? mediaId,
-  }) async {
-    final url = Uri.parse(
-      'https://api.themoviedb.org/3/account/22198136/favorite',
-    );
-    final data = jsonEncode({
+  Future<void> removeFavorites({required int? mediaId}) async {
+    final data = {
       "media_type": "movie",
       "media_id": mediaId,
       "favorite": false,
-    });
-    final response = await http.post(
-      url,
-      headers: ApiConstants.headers,
+    };
+
+    await NetworkManager.instance.postRequest(
+      '/3/account/22198136/favorite',
       body: data,
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseData = jsonDecode(response.body);
-      print("TMDB response: ${responseData['status_message']}");
-
-      final movie = movieList?.firstWhere((m) => m.id == mediaId);
-      if (movie != null) {
-        movie.isFavorite = false;
-        getFavoritesList();
-      }
-    } else {
-      print("Error: ${response.statusCode} - ${response.body}");
+    final movie = movieList?.firstWhere((m) => m.id == mediaId);
+    if (movie != null) {
+      movie.isFavorite = false;
+      await getFavoritesList(hideLoading: true);
     }
+
+    // if (response.statusCode == 200 || response.statusCode == 201) {
+    //   final responseData = jsonDecode(response.body);
+    //   print("TMDB response: ${responseData['status_message']}");
+    // } else {
+    //   print("Error: ${response.statusCode} - ${response.body}");
+    // }
   }
 
-  Future<void> removeWatchlist({
-    required int? mediaId,
-  }) async {
-    final url = Uri.parse(
-      'https://api.themoviedb.org/3/account/22198136/watchlist',
-    );
-    final data = jsonEncode({
+  Future<void> removeWatchlist({required int? mediaId}) async {
+    final data = {
       "media_type": "movie",
       "media_id": mediaId,
       "watchlist": false,
-    });
-    final response = await http.post(
-      url,
-      headers: ApiConstants.headers,
+    };
+
+    await NetworkManager.instance.postRequest(
+      '/3/account/22198136/watchlist',
       body: data,
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseData = jsonDecode(response.body);
-      print("TMDB response: ${responseData['status_message']}");
-
-      final movie = movieList?.firstWhere((m) => m.id == mediaId);
-      if (movie != null) {
-        movie.isInWatchlist = false;
-        getWatchlist();
-      }
-    } else {
-      print("Error: ${response.statusCode} - ${response.body}");
+    final movie = movieList?.firstWhere((m) => m.id == mediaId);
+    if (movie != null) {
+      movie.isInWatchlist = false;
+      await getWatchlist(hideLoading: true);
     }
+
+    // if (response.statusCode == 200 || response.statusCode == 201) {
+    //   final responseData = jsonDecode(response.body);
+    //   print("TMDB response: ${responseData['status_message']}");
+    // } else {
+    //   print("Error: ${response.statusCode} - ${response.body}");
+    // }
   }
 }
